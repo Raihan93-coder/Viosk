@@ -1,0 +1,71 @@
+:root {
+  /* Brand Colors - UX4G / Bright & Creamy */
+  --primary: #2563eb;
+  /* Vibrant Blue (Government standard ish) */
+  --primary-glow: rgba(37, 99, 235, 0.2);
+  --secondary: #ea580c;
+  /* Deep Orange/Saffron for accent */
+  --accent: #0891b2;
+  /* Cyan/Teal */
+
+  --dark-bg: #fdfbf7;
+  /* Creamy White Background */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  /* Frosted Glass Light */
+  --glass-border: rgba(0, 0, 0, 0.05);
+
+  --text-light: #1e293b;
+  /* Slate 800 - High Contrast Text */
+  --text-dim: #64748b;
+  /* Slate 500 */
+
+  /* Spacing */
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 4rem;
+
+  /* Animation - Faster/Snappier */
+  --transition-fast: 0.1s ease-out;
+  --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--dark-bg);
+  color: var(--text-light);
+  overflow-x: hidden;
+}
+
+/* Glassmorphism Utility */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Typography */
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  background: linear-gradient(to right, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}

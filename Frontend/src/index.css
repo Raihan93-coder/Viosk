@@ -1,15 +1,2 @@
-@import "tailwindcss";
-@layer base {
-  body {
-    min-height: 100vh;
-
-    background-color: #fbeed7;
-
-    background-image: linear-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
-
-    background-size: 32px 32px, 32px 32px;
-
-    background-position: center, center;
-  }
-}
+/* Resetted by SUVIDHA setup to avoid conflicts */
+/* See src/styles/main.css for global styles */

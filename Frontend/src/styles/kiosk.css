@@ -1,0 +1,60 @@
+/* KIOSK SPECIFIC VARIABLES */
+:root {
+    --touch-target: 64px;
+}
+
+.kiosk-btn {
+    height: var(--touch-target);
+    font-size: 1.25rem;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    transition: transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.kiosk-btn:active {
+    transform: scale(0.96);
+}
+
+.kiosk-card {
+    padding: 2rem;
+    transition: transform var(--transition-smooth), border-color var(--transition-smooth);
+}
+
+.kiosk-card:active {
+    border-color: var(--accent);
+}
+
+.virtual-keyboard {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    margin-top: 2rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.key-btn {
+    height: 60px;
+    background: white;
+    border: 1px solid var(--glass-border);
+    color: var(--text-light);
+    font-size: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.key-btn:active {
+    background: rgba(255, 255, 255, 0.3);
+}
