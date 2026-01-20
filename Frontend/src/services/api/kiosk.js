@@ -36,3 +36,18 @@ export const submitPayment = async (data) => {
         }, 1500);
     });
 };
+
+export const submitComplaint = async (data) => {
+    console.log('--- API CALL: submitComplaint ---');
+    console.log('Payload:', JSON.stringify(data, null, 2));
+
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                success: true,
+                ticketId: 'TKT' + Math.floor(Math.random() * 1000000),
+                message: 'Complaint registered successfully'
+            });
+        }, 2000); // 2 second delay to simulate network
+    });
+};

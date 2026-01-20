@@ -35,7 +35,7 @@ const ServiceMenu = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: index * 0.05, duration: 0.2 }}
                         className="kiosk-card glass-panel"
-                        onClick={() => navigate(`/kiosk/service/${service.id}`)}
+                        onClick={() => service.id === 'grievance' ? navigate('/kiosk/complaint') : navigate(`/kiosk/service/${service.id}`)}
                         style={{
                             display: 'flex',
                             flexDirection: 'column',
