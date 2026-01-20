@@ -1,18 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Camera, Send, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { ChevronLeft, Camera, Send, CheckCircle, AlertCircle, X, Loader2 } from 'lucide-react';
 import QRCode from 'react-qr-code';
-import { submitComplaint } from '../../services/api/kiosk';
+import { submitComplaint, initPhotoSession, checkUploadStatus } from '../../services/api/kiosk';
+import { KIOSK_ID } from '../../services/config';
 import '../../styles/kiosk.css'; // Assuming base styles exist
 
 const ComplaintBox = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+
+    // Photo Upload State
     const [showPhotoModal, setShowPhotoModal] = useState(false);
     const [photoAttached, setPhotoAttached] = useState(false);
-    const [uploadingPhoto, setUploadingPhoto] = useState(false);
+    const [uploadSession, setUploadSession] = useState(null); // { sessionId, uploadUrl }
+    const [pollingInterval, setPollingInterval] = useState(null);
 
     const [formData, setFormData] = useState({
         department: '',
@@ -35,6 +39,13 @@ const ComplaintBox = () => {
     const isDescriptionValid = wordCount >= 5 && wordCount <= 300;
     const wordsLeft = 300 - wordCount;
 
+    // Clean up polling on unmount or modal close
+    useEffect(() => {
+        return () => {
+            if (pollingInterval) clearInterval(pollingInterval);
+        };
+    }, [pollingInterval]);
+
     const handleInputChange = (field, value) => {
         if (field === 'description') {
             const words = value.trim().split(/\s+/).filter(Boolean).length;
@@ -43,15 +54,47 @@ const ComplaintBox = () => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const simulatePhotoUpload = () => {
-        setUploadingPhoto(true);
-        // Simulate waiting for user to scan and upload
-        setTimeout(() => {
-            setFormData(prev => ({ ...prev, photoUrl: 'https://mock.url/photo.jpg' }));
-            setPhotoAttached(true);
-            setUploadingPhoto(false);
-            setShowPhotoModal(false);
-        }, 3000);
+    const startPhotoSession = async () => {
+        setShowPhotoModal(true);
+        setUploadSession(null); // Reset
+
+        try {
+            // 1. Init Session
+            const session = await initPhotoSession(KIOSK_ID);
+            setUploadSession(session);
+
+            // 2. Start Polling
+            const interval = setInterval(async () => {
+                try {
+                    const statusRes = await checkUploadStatus(session.sessionId);
+                    if (statusRes.status === 'COMPLETED') {
+                        setFormData(prev => ({ ...prev, photoUrl: statusRes.photoUrl }));
+                        setPhotoAttached(true);
+                        setShowPhotoModal(false);
+                        clearInterval(interval);
+                    }
+                } catch (err) {
+                    console.error("Polling error", err);
+                }
+            }, 3000); // Poll every 3 seconds
+
+            setPollingInterval(interval);
+
+        } catch (error) {
+            console.error("Failed to init photo session", error);
+            // Handle error (show message to user)
+        }
+    };
+
+    const cancelPhotoUpload = () => {
+        if (pollingInterval) clearInterval(pollingInterval);
+        setShowPhotoModal(false);
+        setUploadSession(null);
+    };
+
+    const removePhoto = () => {
+        setPhotoAttached(false);
+        setFormData(prev => ({ ...prev, photoUrl: '' }));
     };
 
     const handleSubmit = async () => {
@@ -60,7 +103,7 @@ const ComplaintBox = () => {
         setLoading(true);
         const payload = {
             ...formData,
-            kioskId: 'K-IND-TN-CH-01', // Should come from context/config
+            kioskId: KIOSK_ID,
             timestamp: new Date().toISOString()
         };
 
@@ -74,7 +117,7 @@ const ComplaintBox = () => {
             }
         } catch (error) {
             console.error("Submission error:", error);
-            // Handle error state if needed
+            // Handle error state (maybe show toast)
         } finally {
             setLoading(false);
         }
@@ -246,7 +289,7 @@ const ComplaintBox = () => {
                                 <p style={{ marginBottom: '1rem', color: '#64748b' }}>Scan a QR code to upload a photo from your mobile device.</p>
                                 <button
                                     style={styles.buttonSecondary}
-                                    onClick={() => { setShowPhotoModal(true); simulatePhotoUpload(); }}
+                                    onClick={startPhotoSession}
                                 >
                                     <Camera size={20} /> Scan to Upload
                                 </button>
@@ -256,7 +299,7 @@ const ComplaintBox = () => {
                                 <CheckCircle size={24} />
                                 <span style={{ fontWeight: '500' }}>Photo attached successfully</span>
                                 <button
-                                    onClick={() => { setPhotoAttached(false); setFormData(prev => ({ ...prev, photoUrl: '' })); }}
+                                    onClick={removePhoto}
                                     style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#166534' }}
                                 >
                                     <X size={20} />
@@ -291,16 +334,26 @@ const ComplaintBox = () => {
                             exit={{ scale: 0.95, opacity: 0 }}
                             style={{ background: 'white', padding: '2rem', borderRadius: '16px', textAlign: 'center', maxWidth: '90%', width: '400px' }}
                         >
-                            <h3>Scan with Mobile</h3>
-                            <div style={{ background: 'white', padding: '1rem', display: 'inline-block' }}>
-                                <QRCode value="https://viosk-demo.com/upload-portal/session-123" size={200} />
-                            </div>
-                            <p style={{ marginTop: '1rem', color: '#64748b' }}>
-                                {uploadingPhoto ? 'Simulating upload in 3s...' : 'Waiting for upload...'}
-                            </p>
+                            <h3 style={{ marginBottom: '1.5rem' }}>Scan with Mobile</h3>
+
+                            {uploadSession ? (
+                                <>
+                                    <div style={{ background: 'white', padding: '1rem', display: 'inline-block', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', borderRadius: '8px' }}>
+                                        <QRCode value={uploadSession.uploadUrl || 'https://viosk.com'} size={200} />
+                                    </div>
+                                    <p style={{ marginTop: '1.5rem', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                                        <Loader2 className="animate-spin" size={20} /> Waiting for upload...
+                                    </p>
+                                </>
+                            ) : (
+                                <div style={{ height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Loader2 className="animate-spin" size={40} color="#2563eb" />
+                                </div>
+                            )}
+
                             <button
-                                onClick={() => setShowPhotoModal(false)}
-                                style={{ marginTop: '1rem', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1rem' }}
+                                onClick={cancelPhotoUpload}
+                                style={{ marginTop: '2rem', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1rem', fontWeight: 500 }}
                             >
                                 Cancel
                             </button>

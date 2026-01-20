@@ -1,53 +1,35 @@
-// Kiosk API Services - Mock Data
+import api from './client';
+import { ENDPOINTS } from '../config';
+
+// --- Services ---
 
 export const getServices = async () => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve([
-                { id: 'electricity', name: 'Electricity', icon: 'Zap' },
-                { id: 'water', name: 'Water', icon: 'Droplet' },
-                { id: 'gas', name: 'Gas', icon: 'Flame' },
-                { id: 'waste', name: 'Waste Mgmt', icon: 'Trash2' },
-                { id: 'grievance', name: 'Grievance', icon: 'MessageSquare' }
-            ]);
-        }, 500);
-    });
+    try {
+        return await api.get(ENDPOINTS.SERVICES);
+    } catch (error) {
+        console.error("Failed to fetch services:", error);
+        throw error;
+    }
 };
 
 export const getServiceDetails = async (serviceId) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                id: serviceId,
-                name: serviceId.charAt(0).toUpperCase() + serviceId.slice(1),
-                fields: [
-                    { name: 'consumerId', label: 'Consumer Number', type: 'number' },
-                    { name: 'amount', label: 'Bill Amount', type: 'readonly', value: '₹ 450.00' }
-                ]
-            });
-        }, 500);
-    });
+    return api.get(ENDPOINTS.SERVICE_DETAILS(serviceId));
 };
 
 export const submitPayment = async (data) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({ success: true, transactionId: 'TXN' + Math.floor(Math.random() * 1000000) });
-        }, 1500);
-    });
+    return api.post(ENDPOINTS.PAYMENT, data);
 };
 
-export const submitComplaint = async (data) => {
-    console.log('--- API CALL: submitComplaint ---');
-    console.log('Payload:', JSON.stringify(data, null, 2));
+// --- Complaints & Photo Upload ---
 
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                success: true,
-                ticketId: 'TKT' + Math.floor(Math.random() * 1000000),
-                message: 'Complaint registered successfully'
-            });
-        }, 2000); // 2 second delay to simulate network
-    });
+export const submitComplaint = async (data) => {
+    return api.post(ENDPOINTS.COMPLAINT, data);
+};
+
+export const initPhotoSession = async (kioskId) => {
+    return api.post(ENDPOINTS.PHOTO_SESSION_INIT, { kioskId });
+};
+
+export const checkUploadStatus = async (sessionId) => {
+    return api.get(ENDPOINTS.PHOTO_SESSION_STATUS(sessionId));
 };
