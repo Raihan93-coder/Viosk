@@ -29,3 +29,5 @@ yarn-error.log*
 *.swp
 *.swo
 Backend/env.py
+__pycache__/
+
