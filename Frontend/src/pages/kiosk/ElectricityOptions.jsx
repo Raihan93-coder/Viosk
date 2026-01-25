@@ -29,20 +29,20 @@ const ElectricityOptions = () => {
             navigate(-1);
         } else {
             setStep(prev => prev - 1);
-            if (step === 2) setSelectedService(null);
-            if (step === 3) setSelectedBoard(null);
+            if (step === 2) setSelectedBoard(null); // Back from Service -> Board
+            if (step === 3) setSelectedService(null); // Back from Details -> Service
             if (step === 4) setBillDetails(null);
         }
     };
 
-    const handleServiceSelect = (serviceId) => {
-        setSelectedService(serviceId);
-        setStep(2);
-    };
-
     const handleBoardSelect = (board) => {
         setSelectedBoard(board);
-        setStep(3);
+        setStep(2); // Move to Service Selection
+    };
+
+    const handleServiceSelect = (serviceId) => {
+        setSelectedService(serviceId);
+        setStep(3); // Move to Details
     };
 
     const fetchBillDetails = async () => {
@@ -94,8 +94,8 @@ const ElectricityOptions = () => {
                 <div>
                     <h2 style={{ fontSize: '2rem', margin: 0, color: '#0f172a' }}>Electricity Services</h2>
                     <p style={{ margin: 0, color: '#64748b' }}>
-                        {step === 1 && "Select a service to proceed"}
-                        {step === 2 && "Select your electricity board"}
+                        {step === 1 && "Select your electricity board"}
+                        {step === 2 && "Select a service to proceed"}
                         {step === 3 && "Enter connection details"}
                         {step === 4 && "Review bill details"}
                     </p>
@@ -113,9 +113,9 @@ const ElectricityOptions = () => {
                         transition={{ duration: 0.2 }}
                         style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
                     >
-                        {step === 1 && <ServiceSelection onSelect={handleServiceSelect} />}
+                        {step === 1 && <BoardSelection onSelect={handleBoardSelect} />}
 
-                        {step === 2 && <BoardSelection onSelect={handleBoardSelect} />}
+                        {step === 2 && <ServiceSelection onSelect={handleServiceSelect} />}
 
                         {step === 3 && (
                             <ConsumerDetails
