@@ -1,5 +1,0 @@
-953228d Minor Important Changes
-9651a16 Merge branch 'dev' of github.com:Raihan93-coder/Viosk into HEAD Test commit
-32c7961 Fix frontend conflicts, lint errors, and deps
-8823449 Merge branch 'dev' of https://github.com/Raihan93-coder/Viosk into dev # Please enter a commit message to explain why this merge is necessary, # especially if it merges an updated upstream into a topic branch. # # Lines starting with '#' will be ignored, and an empty message aborts # the commit.
-90b31dc minor changes: resolved issues
