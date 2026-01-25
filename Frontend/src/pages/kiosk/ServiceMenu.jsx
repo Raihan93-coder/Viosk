@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import * as Icons from 'lucide-react';
+import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { getServices } from '../../services/api/kiosk';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -35,7 +36,15 @@ const ServiceMenu = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: index * 0.05, duration: 0.2 }}
                         className="kiosk-card glass-panel"
-                        onClick={() => service.id === 'grievance' ? navigate('/kiosk/complaint') : navigate(`/kiosk/service/${service.id}`)}
+                        onClick={() => {
+                            if (service.id === 'grievance') {
+                                navigate('/kiosk/complaint');
+                            } else if (service.id === 'electricity') {
+                                navigate('/kiosk/electricity-options');
+                            } else {
+                                navigate(`/kiosk/service/${service.id}`);
+                            }
+                        }}
                         style={{
                             display: 'flex',
                             flexDirection: 'column',

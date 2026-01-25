@@ -80,3 +80,14 @@ export const checkUploadStatus = async (sessionId) => {
     }
     return api.get(ENDPOINTS.PHOTO_SESSION_STATUS(sessionId));
 };
+
+export const getQuickPayUrl = async () => {
+    try {
+        const response = await fetch('http://localhost:8000/quickpay');
+        const data = await response.json();
+        return data.url;
+    } catch (error) {
+        console.error('Error fetching Quick Pay URL:', error);
+        return null;
+    }
+};

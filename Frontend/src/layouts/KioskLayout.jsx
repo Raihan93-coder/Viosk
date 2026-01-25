@@ -10,7 +10,7 @@ const KioskLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { language, t, languages } = useLanguage();
-    const [lastActivity, setLastActivity] = useState(Date.now());
+    const [lastActivity, setLastActivity] = useState(() => Date.now());
 
     // Reset timer on touch
     useEffect(() => {

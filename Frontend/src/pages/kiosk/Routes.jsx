@@ -6,6 +6,7 @@ import LanguageSelect from './LanguageSelect';
 import ServiceMenu from './ServiceMenu';
 import ServiceDetail from './ServiceDetail';
 import ComplaintBox from './ComplaintBox';
+import ElectricityOptions from './ElectricityOptions';
 
 const KioskRoutes = () => {
     return (
@@ -14,6 +15,7 @@ const KioskRoutes = () => {
                 <Route path="/" element={<IdleScreen />} />
                 <Route path="/language" element={<LanguageSelect />} />
                 <Route path="/services" element={<ServiceMenu />} />
+                <Route path="/electricity-options" element={<ElectricityOptions />} />
                 <Route path="/service/:id" element={<ServiceDetail />} />
                 <Route path="/complaint" element={<ComplaintBox />} />
             </Route>

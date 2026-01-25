@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { CheckCircle, Loader } from 'lucide-react';
 import { getServiceDetails, submitPayment } from '../../services/api/kiosk';
 import VirtualKeyboard from '../../components/kiosk/VirtualKeyboard';

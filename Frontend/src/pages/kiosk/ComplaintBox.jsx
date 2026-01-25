@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { ChevronLeft, Camera, Send, CheckCircle, AlertCircle, X, Loader2 } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { submitComplaint, initPhotoSession, checkUploadStatus } from '../../services/api/kiosk';
