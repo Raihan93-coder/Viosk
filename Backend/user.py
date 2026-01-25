@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from models import complaint
 from DB.conn import conn, cursor
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -13,6 +14,34 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# @app.get("/service/{id}")
+# def services(id):
+#     listofServices = [{
+#         "id": "electricity",
+#         "name": "Electricity",
+#         "icon": "Zap"
+#     },{
+#         "id": "water",
+#         "name": "Water",
+#         "icon": "Droplet"
+#     },{
+#         "id": "gas",
+#         "name": "Gas",
+#         "icon": "Flame"
+#     },{
+#         "id": "waste",
+#         "name": "Waste",
+#         "icon": "Trash2"
+#     },{
+#         "id": "grievance",
+#         "name": "Grievance",
+#         "icon": "MessageSquare"
+#     }]
+#     for i in listofServices:
+#         if i["id"] == id:
+#             return i
+#     return None
 
 @app.get("/quickpay")
 def quick_pay():

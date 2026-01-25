@@ -1,0 +1,14 @@
+annotated-doc     
+annotated-types   
+anyio             
+fastapi           
+idna              
+pillow            
+pip               
+psycopg2-binary   
+pydantic          
+pydantic_core     
+qrcode            
+starlette         
+typing_extensions 
+typing-inspection 
