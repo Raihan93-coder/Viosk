@@ -1,11 +1,11 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from user import user_router
-from auth import auth_router
-from qr import qr_router
+from ROUTES.user import user_router
+from ROUTES.auth import auth_router
+from ROUTES.qr import qr_router
 from upload import upload_router
-#from cookies import cookie_router
+#from ROUTES.cookies import cookie_router
 
 app = FastAPI(title="Kiosk API")
 

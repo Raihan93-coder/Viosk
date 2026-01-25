@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
-from models import complaint
+from ROUTES.models import complaint
 from DB.conn import conn, cursor
 from pydantic import BaseModel
 from fastapi import APIRouter

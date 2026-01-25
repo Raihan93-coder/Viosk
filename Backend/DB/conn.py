@@ -7,8 +7,11 @@ db_user = os.getenv("USER", "karthii")
 
 try:
     conn = psycopg2.connect(
-        database="postgres",
-        user=db_user
+        database="kioski",
+        user="karthii",
+        password="karthik",
+        host="127.0.0.1",
+        port=5432
     )
     cursor = conn.cursor()
 except Exception as e:
