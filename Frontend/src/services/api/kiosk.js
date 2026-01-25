@@ -2,8 +2,7 @@ import api from './client';
 import { ENDPOINTS } from '../config';
 
 // Toggle this to switch between Real API and Mock Data
-// In production, this should ideally be false or controlled via env vars
-const USE_MOCK = true;
+const USE_MOCK = false;  // Set to false to use real backend
 
 // --- Mock Data ---
 
@@ -23,13 +22,9 @@ const MOCK_SERVICE_DETAILS = {
 
 export const getServices = async () => {
     try {
-        if (USE_MOCK) {
-            console.log('[Mock] Fetching Services');
-            // Simulate network delay
-            await new Promise(resolve => setTimeout(resolve, 500));
-            return MOCK_SERVICES;
-        }
-        return await api.get(ENDPOINTS.SERVICES);
+        console.log('[Mock] Fetching Services');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return MOCK_SERVICES;
     } catch (error) {
         console.error("Failed to fetch services:", error);
         throw error;
@@ -56,53 +51,73 @@ export const submitPayment = async (data) => {
 
 // --- Complaints & Photo Upload ---
 
-import CryptoJS from 'crypto-js';
-
-// @TODO: Use environment variable in production
-const SECRET_KEY = 'VIOSK_SECRET_KEY_123';
-
-const encryptData = (text) => {
-    if (!text) return text;
-    return CryptoJS.AES.encrypt(text, SECRET_KEY).toString();
-};
-
 export const submitComplaint = async (data) => {
-    // Encrypt sensitive data before sending to API (or Mock)
-    const encryptedPayload = {
-        ...data,
-        description: encryptData(data.description),
-        phoneNumber: encryptData(data.phoneNumber),
-        department: encryptData(data.department)
+    // Map frontend fields to backend expected fields
+    const payload = {
+        consumer_service: data.department,
+        consumer_phone: data.phoneNumber || '',
+        consumer_description: data.description
     };
 
     if (USE_MOCK) {
-        console.log('[Mock] Submitting Complaint (Encrypted Payload):', encryptedPayload);
+        console.log('[Mock] Submitting Complaint:', payload);
         await new Promise(resolve => setTimeout(resolve, 1000));
         return { success: true, ticketId: 'MOCK-TICKET-' + Date.now() };
     }
 
-    return api.post(ENDPOINTS.COMPLAINT, encryptedPayload);
+    try {
+        const response = await api.post(ENDPOINTS.COMPLAINT, payload);
+        return { success: true, ...response };
+    } catch (error) {
+        console.error('Submit complaint error:', error);
+        throw error;
+    }
 };
 
-export const initPhotoSession = async (kioskId) => {
+export const initPhotoSession = async () => {
     if (USE_MOCK) {
-        console.log('[Mock] Init Photo Session for:', kioskId);
-        return { sessionId: 'mock-session-123', uploadUrl: 'http://mock-upload-url' };
+        console.log('[Mock] Init Photo Session');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return {
+            sessionId: 'mock-session-123',
+            uploadUrl: 'http://localhost:8000/upload/mock'
+        };
     }
-    return api.post(ENDPOINTS.PHOTO_SESSION_INIT, { kioskId });
+
+    try {
+        const response = await api.post(ENDPOINTS.PHOTO_SESSION_INIT);
+        // Backend returns: { session_id, qr_code, upload_url }
+        return {
+            sessionId: response.session_id,
+            qrCode: response.qr_code,
+            uploadUrl: response.upload_url
+        };
+    } catch (error) {
+        console.error('Init photo session error:', error);
+        throw error;
+    }
 };
 
 export const checkUploadStatus = async (sessionId) => {
     if (USE_MOCK) {
         console.log('[Mock] Checking Upload Status for:', sessionId);
-        return { status: 'uploaded', fileUrl: 'http://mock-file-url.jpg' };
+        // Simulate random completion
+        const done = Math.random() > 0.7;
+        return { status: done ? 'COMPLETED' : 'PENDING' };
     }
-    return api.get(ENDPOINTS.PHOTO_SESSION_STATUS(sessionId));
+
+    try {
+        const response = await api.get(ENDPOINTS.PHOTO_SESSION_STATUS(sessionId));
+        return response;
+    } catch (error) {
+        console.error('Check upload status error:', error);
+        return { status: 'PENDING' };
+    }
 };
 
 export const getQuickPayUrl = async () => {
     try {
-        const response = await fetch('http://localhost:8000/quickpay');
+        const response = await fetch('http://localhost:8000/user/quickpay');
         const data = await response.json();
         return data.url;
     } catch (error) {
@@ -110,3 +125,4 @@ export const getQuickPayUrl = async () => {
         return null;
     }
 };
+

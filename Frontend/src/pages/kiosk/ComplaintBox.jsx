@@ -66,8 +66,8 @@ const ComplaintBox = () => {
         setUploadSession(null); // Reset
 
         try {
-            // 1. Init Session
-            const session = await initPhotoSession(KIOSK_ID);
+            // 1. Init Session (no kioskId needed)
+            const session = await initPhotoSession();
             setUploadSession(session);
 
             // 2. Start Polling
@@ -351,7 +351,11 @@ const ComplaintBox = () => {
                             {uploadSession ? (
                                 <>
                                     <div style={{ background: 'white', padding: '1rem', display: 'inline-block', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', borderRadius: '8px' }}>
-                                        <QRCode value={uploadSession.uploadUrl || 'https://viosk.com'} size={200} />
+                                        {uploadSession.qrCode ? (
+                                            <img src={uploadSession.qrCode} alt="QR Code" style={{ width: 200, height: 200 }} />
+                                        ) : (
+                                            <QRCode value={uploadSession.uploadUrl || 'https://viosk.com'} size={200} />
+                                        )}
                                     </div>
                                     <p style={{ marginTop: '1.5rem', color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                                         <Loader2 className="animate-spin" size={20} /> Waiting for upload...

@@ -5,10 +5,11 @@ export const API_BASE_URL = 'http://localhost:8000';
 export const KIOSK_ID = 'K-IND-TN-CH-01';
 
 export const ENDPOINTS = {
-    COMPLAINT: '/complaints',
-    PHOTO_SESSION_INIT: '/upload/session/init',
-    PHOTO_SESSION_STATUS: (sessionId) => `/upload/session/${sessionId}/status`,
+    COMPLAINT: '/user/consumercomplaint',
+    PHOTO_SESSION_INIT: '/qr/init_session',
+    PHOTO_SESSION_STATUS: (sessionId) => `/qr/status/${sessionId}`,
     SERVICES: '/services',
     SERVICE_DETAILS: (id) => `/services/${id}`,
     PAYMENT: '/payments'
 };
+
