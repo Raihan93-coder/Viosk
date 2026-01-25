@@ -1,113 +1,143 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { Zap, FileText } from 'lucide-react';
-import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
+import { ChevronLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../context/LanguageContext';
-
 import { getQuickPayUrl } from '../../services/api/kiosk';
+
+// Importer Sub-components
+import ServiceSelection from '../../components/kiosk/electricity/ServiceSelection';
+import BoardSelection from '../../components/kiosk/electricity/BoardSelection';
+import ConsumerDetails from '../../components/kiosk/electricity/ConsumerDetails';
+import BillResult from '../../components/kiosk/electricity/BillResult';
 
 const ElectricityOptions = () => {
     const navigate = useNavigate();
     const { t } = useLanguage();
 
-    const handleQuickPay = async () => {
+    // Wizard State
+    // Steps: 1=Service, 2=Board, 3=Details, 4=Review/Success
+    const [step, setStep] = useState(1);
+    const [selectedService, setSelectedService] = useState(null); // 'quick_pay' | 'view_bill'
+    const [selectedBoard, setSelectedBoard] = useState(null);
+    const [consumerNumber, setConsumerNumber] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [billDetails, setBillDetails] = useState(null);
+
+    const handleBack = () => {
+        if (step === 1) {
+            navigate(-1);
+        } else {
+            setStep(prev => prev - 1);
+            if (step === 2) setSelectedService(null);
+            if (step === 3) setSelectedBoard(null);
+            if (step === 4) setBillDetails(null);
+        }
+    };
+
+    const handleServiceSelect = (serviceId) => {
+        setSelectedService(serviceId);
+        setStep(2);
+    };
+
+    const handleBoardSelect = (board) => {
+        setSelectedBoard(board);
+        setStep(3);
+    };
+
+    const fetchBillDetails = async () => {
+        if (!consumerNumber || consumerNumber.length < 5) return;
+
+        setLoading(true);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Mock Response
+        setBillDetails({
+            consumerName: "A**** Kumar",
+            billAmount: "₹ 1,240.00",
+            dueDate: "28 Feb 2026",
+            status: "PENDING",
+            unitsConsumed: 245
+        });
+        setLoading(false);
+        setStep(4);
+    };
+
+    const handlePayment = async () => {
         const url = await getQuickPayUrl();
         if (url) {
             window.location.href = url;
+        } else {
+            alert("Payment gateway integration pending.");
         }
     };
 
     return (
-        <div style={{ padding: '2rem 4rem', height: '100%' }}>
-            <div style={{ marginBottom: '3rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ padding: '2rem 4rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
+            {/* Header */}
+            <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <button
-                    onClick={() => navigate(-1)}
+                    onClick={handleBack}
                     style={{
                         background: 'none',
                         border: 'none',
-                        fontSize: '1.5rem',
                         cursor: 'pointer',
-                        color: 'var(--text-light)',
+                        color: '#475569',
+                        padding: '0.5rem',
                         display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem'
+                        alignItems: 'center'
                     }}
                 >
-                    ← {t('back')}
+                    <ChevronLeft size={32} />
                 </button>
-                <h2 style={{ fontSize: '2.5rem', margin: 0 }}>{t('electricity')} Services</h2>
+                <div>
+                    <h2 style={{ fontSize: '2rem', margin: 0, color: '#0f172a' }}>Electricity Services</h2>
+                    <p style={{ margin: 0, color: '#64748b' }}>
+                        {step === 1 && "Select a service to proceed"}
+                        {step === 2 && "Select your electricity board"}
+                        {step === 3 && "Enter connection details"}
+                        {step === 4 && "Review bill details"}
+                    </p>
+                </div>
             </div>
 
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                gap: '2rem',
-                justifyItems: 'center'
-            }}>
-                {/* Quick Pay Button */}
-                <motion.button
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="glass-panel"
-                    onClick={handleQuickPay}
-                    style={{
-                        padding: '2rem',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '1.5rem',
-                        background: 'white',
-                        border: '1px solid var(--glass-border)',
-                        cursor: 'pointer',
-                        color: 'var(--text-light)',
-                        width: '100%',
-                        maxWidth: '300px',
-                        height: '220px',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                    whileHover={{ scale: 1.05, borderColor: 'var(--primary)' }}
-                    whileTap={{ scale: 0.95 }}
-                >
-                    <div style={{ color: '#eab308' }}>
-                        <Zap size={48} />
-                    </div>
-                    <span style={{ fontSize: '1.5rem', fontWeight: '500' }}>Quick Pay</span>
-                </motion.button>
+            {/* Content Area */}
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: '2rem' }}>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={step}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2 }}
+                        style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+                    >
+                        {step === 1 && <ServiceSelection onSelect={handleServiceSelect} />}
 
-                {/* Bill View Button */}
-                <motion.button
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="glass-panel"
-                    onClick={() => { }} // Placeholder
-                    style={{
-                        padding: '2rem',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '1.5rem',
-                        background: 'white',
-                        border: '1px solid var(--glass-border)',
-                        cursor: 'pointer',
-                        color: 'var(--text-light)',
-                        width: '100%',
-                        maxWidth: '300px',
-                        height: '220px',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                    whileHover={{ scale: 1.05, borderColor: 'var(--primary)' }}
-                    whileTap={{ scale: 0.95 }}
-                >
-                    <div style={{ color: 'var(--primary)' }}>
-                        <FileText size={48} />
-                    </div>
-                    <span style={{ fontSize: '1.5rem', fontWeight: '500' }}>Bill View</span>
-                </motion.button>
+                        {step === 2 && <BoardSelection onSelect={handleBoardSelect} />}
+
+                        {step === 3 && (
+                            <ConsumerDetails
+                                selectedBoard={selectedBoard}
+                                selectedService={selectedService}
+                                consumerNumber={consumerNumber}
+                                setConsumerNumber={setConsumerNumber}
+                                onFetch={fetchBillDetails}
+                                loading={loading}
+                            />
+                        )}
+
+                        {step === 4 && (
+                            <BillResult
+                                billDetails={billDetails}
+                                consumerNumber={consumerNumber}
+                                selectedService={selectedService}
+                                onPayment={handlePayment}
+                            />
+                        )}
+                    </motion.div>
+                </AnimatePresence>
             </div>
         </div>
     );

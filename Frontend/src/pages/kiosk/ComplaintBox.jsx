@@ -37,6 +37,7 @@ const ComplaintBox = () => {
 
     const wordCount = formData.description.trim().split(/\s+/).filter(Boolean).length;
     const isDescriptionValid = wordCount >= 5 && wordCount <= 300;
+    const isPhoneNumberValid = !formData.phoneNumber || formData.phoneNumber.length === 10;
     const wordsLeft = 300 - wordCount;
 
     // Clean up polling on unmount or modal close
@@ -50,6 +51,12 @@ const ComplaintBox = () => {
         if (field === 'description') {
             const words = value.trim().split(/\s+/).filter(Boolean).length;
             if (words > 300 && value.length > formData.description.length) return; // Prevent typing more
+        }
+        if (field === 'phoneNumber') {
+            // Only allow numbers
+            if (!/^\d*$/.test(value)) return;
+            // Limit to 10 digits
+            if (value.length > 10) return;
         }
         setFormData(prev => ({ ...prev, [field]: value }));
     };
@@ -98,7 +105,7 @@ const ComplaintBox = () => {
     };
 
     const handleSubmit = async () => {
-        if (!isDescriptionValid || !formData.department) return;
+        if (!isDescriptionValid || !isPhoneNumberValid || !formData.department) return;
 
         setLoading(true);
         const payload = {
@@ -166,8 +173,8 @@ const ComplaintBox = () => {
             justifyContent: 'center',
             gap: '0.5rem',
             width: '100%',
-            opacity: (!isDescriptionValid || !formData.department || loading) ? 0.5 : 1,
-            pointerEvents: (!isDescriptionValid || !formData.department || loading) ? 'none' : 'auto',
+            opacity: (!isDescriptionValid || !isPhoneNumberValid || !formData.department || loading) ? 0.5 : 1,
+            pointerEvents: (!isDescriptionValid || !isPhoneNumberValid || !formData.department || loading) ? 'none' : 'auto',
             transition: 'opacity 0.2s'
         },
         buttonSecondary: {
@@ -272,6 +279,11 @@ const ComplaintBox = () => {
                             value={formData.phoneNumber}
                             onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                         />
+                        {formData.phoneNumber && formData.phoneNumber.length < 10 && (
+                            <div style={{ color: '#ef4444', fontSize: '0.9rem', marginTop: '-1rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <AlertCircle size={16} /> Phone number must be exactly 10 digits
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -312,7 +324,7 @@ const ComplaintBox = () => {
                         <button
                             style={styles.buttonPrimary}
                             onClick={handleSubmit}
-                            disabled={loading || !isDescriptionValid || !formData.department}
+                            disabled={loading || !isDescriptionValid || !isPhoneNumberValid || !formData.department}
                         >
                             {loading ? 'Submitting...' : 'Submit Complaint'}
                             {!loading && <Send size={20} />}

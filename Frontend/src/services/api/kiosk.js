@@ -56,13 +56,32 @@ export const submitPayment = async (data) => {
 
 // --- Complaints & Photo Upload ---
 
+import CryptoJS from 'crypto-js';
+
+// @TODO: Use environment variable in production
+const SECRET_KEY = 'VIOSK_SECRET_KEY_123';
+
+const encryptData = (text) => {
+    if (!text) return text;
+    return CryptoJS.AES.encrypt(text, SECRET_KEY).toString();
+};
+
 export const submitComplaint = async (data) => {
+    // Encrypt sensitive data before sending to API (or Mock)
+    const encryptedPayload = {
+        ...data,
+        description: encryptData(data.description),
+        phoneNumber: encryptData(data.phoneNumber),
+        department: encryptData(data.department)
+    };
+
     if (USE_MOCK) {
-        console.log('[Mock] Submitting Complaint:', data);
+        console.log('[Mock] Submitting Complaint (Encrypted Payload):', encryptedPayload);
         await new Promise(resolve => setTimeout(resolve, 1000));
         return { success: true, ticketId: 'MOCK-TICKET-' + Date.now() };
     }
-    return api.post(ENDPOINTS.COMPLAINT, data);
+
+    return api.post(ENDPOINTS.COMPLAINT, encryptedPayload);
 };
 
 export const initPhotoSession = async (kioskId) => {
