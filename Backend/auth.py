@@ -5,7 +5,7 @@ import requests
 import urllib.parse
 import env
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.responses import RedirectResponse
 
 # ---------------- CONFIG ---------------- #
@@ -27,7 +27,7 @@ ALLOWED_EMAIL = {
 
 # ---------------- APP ---------------- #
 
-app = FastAPI()
+auth_router = APIRouter()
 
 # ---------------- UTILS ---------------- #
 
@@ -36,7 +36,7 @@ def is_user_allowed(email: str) -> bool:
 
 # ---------------- ROUTES ---------------- #
 
-@app.get("/login")
+@auth_router.get("/login")
 def login():
     params = {
         "response_type": "code",
@@ -51,7 +51,7 @@ def login():
     return RedirectResponse(url)
 
 
-@app.get("/callback")
+@auth_router.get("/callback")
 def callback(code: str):
     access_token = exchange_code_for_token(code)
     email = fetch_user_email(access_token)

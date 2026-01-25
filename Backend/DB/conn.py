@@ -1,9 +1,17 @@
 import psycopg2
 
-conn = psycopg2.connect(
-    host="localhost",
-    database="postgres",
-    user="postgres",
-    password="postgres"
-)
-cursor = conn.cursor()
+import os
+
+# Use the current system user (typically 'karthii' on this system)
+db_user = os.getenv("USER", "karthii")
+
+try:
+    conn = psycopg2.connect(
+        database="postgres",
+        user=db_user
+    )
+    cursor = conn.cursor()
+except Exception as e:
+    print(f"Error connecting to database: {e}")
+    # Re-raise or handle as needed, but for now let's ensure it fails visibly if broken
+    raise e

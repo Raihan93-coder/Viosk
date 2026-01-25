@@ -1,9 +1,13 @@
 import qrcode
 import io
+from fastapi import APIRouter   
+from fastapi import Response
 
 URL = "https://drive.google.com/drive/u/2/folders/1twHXZgtkbjOyeAkQmutKVVvGOI9WZitg"
 
+qr_router = APIRouter()
 
+@qr_router.get("/generate_qr")
 def generetQR():
     # Generating QR Code
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
@@ -15,4 +19,4 @@ def generetQR():
     img_byte_arr = io.BytesIO()
     img.save(img_byte_arr, format='PNG')
     img_byte_arr.seek(0)
-    return img_byte_arr
+    return Response(content=img_byte_arr.getvalue(), media_type="image/png")

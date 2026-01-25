@@ -4,16 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from models import complaint
 from DB.conn import conn, cursor
 from pydantic import BaseModel
-
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+from fastapi import APIRouter
+from fastapi import Body
+user_router = APIRouter()
 
 # @app.get("/service/{id}")
 # def services(id):
@@ -43,13 +36,13 @@ app.add_middleware(
 #             return i
 #     return None
 
-@app.get("/quickpay")
+@user_router.get("/quickpay")
 def quick_pay():
     return {"url": "https://wss.kseb.in/selfservices/quickpay"}
 
-@app.post("/consumercomplaint")
+@user_router.post("/consumercomplaint")
 def consumer_complaint(data:complaint):
-    if(len(complaint.consumer_description))<5:
+    if(len(data.consumer_description))<5:
         raise HTTPException(status_code=400, detail="Description must be at least 5 words")
     query="INSERT INTO consumercomplaint (consumer_service, consumer_phone, consumer_description) VALUES (%s, %s, %s)"
     cursor.execute(query, (data.consumer_service, data.consumer_phone, data.consumer_description))  

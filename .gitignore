@@ -24,6 +24,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # Editors
+*.txt
 .idea
 .vscode
 *.swp
